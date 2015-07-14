@@ -573,12 +573,19 @@ static NSDate *today;
     for (NSInteger i = beginIndex; i <= endIndex; i++) {
         [indexPaths addObject:[NSIndexPath indexPathForItem:i inSection:0]];
     }
+
+    NSMutableSet *allIndexPaths = [NSMutableSet setWithArray:indexPaths];
+    NSSet *visibleIndexPaths = [NSSet setWithArray:[self.collectionView indexPathsForVisibleItems]];
+    [allIndexPaths intersectSet:visibleIndexPaths];
+
+    NSArray *interectedIndexPaths = [allIndexPaths allObjects];
+
     // prevent crash: too many update animations on one view - limit is 31 in flight at a time
     if (indexPaths.count > 30) {
         [self.collectionView reloadData];
     } else {
         [UIView performWithoutAnimation:^{
-            [self.collectionView reloadItemsAtIndexPaths:indexPaths];
+            [self.collectionView reloadItemsAtIndexPaths:interectedIndexPaths];
         }];
     }
 }
